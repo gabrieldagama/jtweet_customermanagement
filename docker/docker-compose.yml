@@ -1,0 +1,36 @@
+version: '3.1'
+
+services:
+    application:
+        restart: always
+        image: maven:3.5-jdk-8
+        working_dir: /app
+        volumes:
+            - ./..:/app
+            - ~/.m2:/root/.m2
+        user: ${CURRENT_UID}  
+        expose:
+            - "8081"                   
+        command: mvn clean spring-boot:run
+        networks:
+            jtweet_default:
+                aliases:
+                    - customermanagement
+        depends_on:
+            - mysql
+            
+    mysql:
+        image: mysql:latest
+        environment:
+            - MYSQL_ROOT_PASSWORD=root
+            - MYSQL_DATABASE=jtweet_customermanagement
+        networks:
+            - jtweet_default            
+        ports:
+            - "3306:3306"
+        volumes:
+            - ./data/mysql:/var/lib/mysql
+            
+networks:
+    jtweet_default:
+        external: true
