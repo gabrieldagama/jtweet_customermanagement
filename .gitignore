@@ -1,6 +1,6 @@
-CustomerManagement/docker/data
 ?
 node_modules
+docker/data
 # Compiled class file
 *.class
 

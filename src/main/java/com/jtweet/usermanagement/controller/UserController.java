@@ -4,6 +4,7 @@ import static com.jtweet.usermanagement.security.SecurityConstants.SECRET;
 import static com.jtweet.usermanagement.security.SecurityConstants.TOKEN_PREFIX;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -11,8 +12,6 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -26,12 +25,18 @@ import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.Claim;
 import com.auth0.jwt.interfaces.DecodedJWT;
+import static com.auth0.jwt.algorithms.Algorithm.HMAC256;
 import com.jtweet.usermanagement.api.ResponseBody;
 import com.jtweet.usermanagement.api.ResponseBodyConverter;
 import com.jtweet.usermanagement.exception.UserAlreadyExistsException;
 import com.jtweet.usermanagement.model.TokenUserDetails;
 import com.jtweet.usermanagement.model.AppUser;
 import com.jtweet.usermanagement.repository.UserRepository;
+
+import static com.jtweet.usermanagement.security.SecurityConstants.HEADER_STRING;
+import static com.jtweet.usermanagement.security.SecurityConstants.SECRET;
+import static com.jtweet.usermanagement.security.SecurityConstants.TOKEN_PREFIX;
+import static com.jtweet.usermanagement.security.SecurityConstants.EXPIRATION_TIME;
 
 @RestController
 @RequestMapping("/users")
@@ -67,10 +72,27 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.CREATED).body(ResponseBodyConverter.convert(responseBody));
 	}
 	
+	@PostMapping("/login")
+	public String validateToken(@RequestBody HashMap<String,String> body)
+	{
+		AppUser user = this.userRepository.findByUsername(body.get("username"));
+		if (this.userService.authenticate(user, body.get("password"))) {
+	    	String token = JWT.create()
+	                .withSubject(user.getUsername())
+	                .withClaim("id", user.getId())
+	                .withClaim("email", user.getEmail())
+	                .withClaim("name", user.getName())
+	                .withExpiresAt(new Date(System.currentTimeMillis() + EXPIRATION_TIME))
+	                .sign(HMAC256(SECRET.getBytes()));
+	    	return token;
+		}
+		return "Nothing";
+	}
+	
 	@PostMapping("/validate")
 	public Boolean validateToken(@RequestBody String token)
 	{
-		DecodedJWT decodedToken = JWT.require(Algorithm.HMAC512(SECRET.getBytes()))
+		DecodedJWT decodedToken = JWT.require(Algorithm.HMAC256(SECRET.getBytes()))
                 .build()
                 .verify(token.replace(TOKEN_PREFIX, "")); 
         String user = decodedToken.getSubject();
