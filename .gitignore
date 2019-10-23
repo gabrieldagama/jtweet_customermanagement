@@ -1,6 +1,9 @@
 ?
 node_modules
 docker/data
+log/
+target/
+.idea
 # Compiled class file
 *.class
 
