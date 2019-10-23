@@ -13,7 +13,7 @@ import javax.validation.constraints.Email;
 @Entity
 @Table(uniqueConstraints={@UniqueConstraint(columnNames = {"email","username"})})
 public class AppUser {
-	
+
 	@Id
 	@GeneratedValue(strategy=GenerationType.IDENTITY)
 	private Integer id;
@@ -26,9 +26,9 @@ public class AppUser {
 	private String username;
 	@NotNull(message = "Password must be present")
 	private String password;
-    private String role = "USER";
-	
-	protected AppUser() {
+    public static final String role = "USER";
+
+	public AppUser() {
 	}
 	
 	public AppUser(String name, String email, String username, String password)
@@ -81,7 +81,7 @@ public class AppUser {
 	}
 
 	public String getRole() {
-		return role;
+		return AppUser.role;
 	}
 	
 }

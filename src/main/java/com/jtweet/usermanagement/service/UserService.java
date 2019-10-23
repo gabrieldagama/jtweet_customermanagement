@@ -38,7 +38,7 @@ public class UserService {
 	
 	public void changePassword(AppUser user, String oldPassword, String newPassword) 
 	{
-		if (user.getPassword() == passwordEncoder.encode(oldPassword)) {
+		if (user.getPassword().equals(passwordEncoder.encode(oldPassword))) {
 			user.setPassword(passwordEncoder.encode(newPassword));
 			this.userRepository.save(user);
 		}
@@ -48,5 +48,4 @@ public class UserService {
 	{
 		return passwordEncoder.matches(password, user.getPassword());
 	}
-	
 }

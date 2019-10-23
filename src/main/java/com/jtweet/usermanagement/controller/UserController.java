@@ -43,10 +43,10 @@ import static com.jtweet.usermanagement.security.SecurityConstants.EXPIRATION_TI
 public class UserController {
 	
 	@Autowired
-	UserService userService;
+	private UserService userService;
 	
 	@Autowired
-	UserRepository userRepository;
+	private  UserRepository userRepository;
 	
 	@GetMapping
 	public List<AppUser> listUsers()
@@ -77,38 +77,14 @@ public class UserController {
 	{
 		AppUser user = this.userRepository.findByUsername(body.get("username"));
 		if (this.userService.authenticate(user, body.get("password"))) {
-	    	String token = JWT.create()
+	    	return JWT.create()
 	                .withSubject(user.getUsername())
 	                .withClaim("id", user.getId())
 	                .withClaim("email", user.getEmail())
 	                .withClaim("name", user.getName())
 	                .withExpiresAt(new Date(System.currentTimeMillis() + EXPIRATION_TIME))
 	                .sign(HMAC256(SECRET.getBytes()));
-	    	return token;
 		}
-		return "Nothing";
+		return "Login invalid.";
 	}
-	
-	@PostMapping("/validate")
-	public Boolean validateToken(@RequestBody String token)
-	{
-		DecodedJWT decodedToken = JWT.require(Algorithm.HMAC256(SECRET.getBytes()))
-                .build()
-                .verify(token.replace(TOKEN_PREFIX, "")); 
-        String user = decodedToken.getSubject();
-
-        if (user != null) {
-        	return true;
-        }
-        return false;
-	}
-	
-	@DeleteMapping("/{id}")
-	public ResponseEntity deleteUser(@PathVariable Integer id)
-	{
-		this.userRepository.deleteById(id);
-		ResponseBody responseBody = new ResponseBody(true, "User deleted successfully");
-        return ResponseEntity.status(HttpStatus.OK).body(ResponseBodyConverter.convert(responseBody));	
-    }
-
 }
