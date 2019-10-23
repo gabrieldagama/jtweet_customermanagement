@@ -1,9 +1,12 @@
-?
-node_modules
 docker/data
 log/
 target/
-.idea
+
+# Intellij
+.idea/
+*.iml
+*.iws
+
 # Compiled class file
 *.class
 
