@@ -15,16 +15,14 @@ import com.jtweet.usermanagement.repository.UserRepository;
 public class UserService {
 	
 	@Autowired
-	UserRepository userRepository;
+	private UserRepository userRepository;
 	
 	@Autowired
 	private PasswordEncoder passwordEncoder;
 	
-	public List<AppUser> getList()
+	public Iterable<AppUser> getList()
 	{
-		List<AppUser> userList = new ArrayList<AppUser>();
-		this.userRepository.findAll().forEach(userList::add);
-		return userList;
+		return this.userRepository.findAll();
 	}
 	
 	public void createNewUser(AppUser user) throws UserAlreadyExistsException

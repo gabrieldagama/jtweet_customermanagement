@@ -15,24 +15,28 @@ import org.mockito.MockitoAnnotations;
 import com.jtweet.usermanagement.exception.UserAlreadyExistsException;
 import com.jtweet.usermanagement.model.AppUser;
 import com.jtweet.usermanagement.repository.UserRepository;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 public class UserServiceTest {
-	
+
 	private final int userId = 1;
 	private final String email = "gabriel@gabrielgama.com.br";
 	private final String name = "Gabriel";
 	private final String username = "gabrieldagama";
 	private final String password = "test123";
-	
+
     @InjectMocks
     private UserService userService;
     
     @Mock
     private UserRepository userRepository;
 
+    @Mock
+    private PasswordEncoder passwordEncoder;
+
     @Before
     public void setUp() {
-        MockitoAnnotations.initMocks(this);
+    	MockitoAnnotations.initMocks(this);
     }
     
     @Test
@@ -40,8 +44,8 @@ public class UserServiceTest {
     	List<AppUser> userList = new ArrayList<AppUser>();
     	AppUser user = this.buildUserObject();
     	userList.add(user);
-    	when(this.userService.getList()).thenReturn(userList);
-    	List<AppUser> returnedUserList = this.userService.getList();
+    	when(this.userRepository.findAll()).thenReturn(userList);
+    	Iterable<AppUser> returnedUserList = this.userService.getList();
     	assertEquals(userList, returnedUserList);
     }
     
@@ -49,6 +53,7 @@ public class UserServiceTest {
     public void createSuccessTest() throws UserAlreadyExistsException {
     	AppUser user = this.buildUserObject();
     	when(this.userRepository.existsByEmail(this.email)).thenReturn(false);
+        when(passwordEncoder.encode(this.password)).thenReturn("encodedpwd");
     	this.userService.createNewUser(user);
     }
    

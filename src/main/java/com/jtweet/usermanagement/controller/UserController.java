@@ -49,7 +49,7 @@ public class UserController {
 	private  UserRepository userRepository;
 	
 	@GetMapping
-	public List<AppUser> listUsers()
+	public Iterable<AppUser> listUsers()
 	{
 		return this.userService.getList();
 	}
