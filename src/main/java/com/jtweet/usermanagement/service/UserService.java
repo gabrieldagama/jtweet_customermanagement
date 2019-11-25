@@ -1,49 +1,14 @@
 package com.jtweet.usermanagement.service;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Service;
-
 import com.jtweet.usermanagement.exception.UserAlreadyExistsException;
+import com.jtweet.usermanagement.exception.UserNotFoundException;
 import com.jtweet.usermanagement.model.AppUser;
-import com.jtweet.usermanagement.repository.UserRepository;
 
-@Service
-public class UserService {
-	
-	@Autowired
-	private UserRepository userRepository;
-	
-	@Autowired
-	private PasswordEncoder passwordEncoder;
-	
-	public Iterable<AppUser> getList()
-	{
-		return this.userRepository.findAll();
-	}
-	
-	public void createNewUser(AppUser user) throws UserAlreadyExistsException
-	{
-		if (this.userRepository.existsByEmail(user.getEmail())) {
-			throw new UserAlreadyExistsException("The user email already exists in the database.", user.getEmail());
-		}
-		user.setPassword(this.passwordEncoder.encode(user.getPassword()));
-		this.userRepository.save(user);
-	}
-	
-	public void changePassword(AppUser user, String oldPassword, String newPassword) 
-	{
-		if (user.getPassword().equals(passwordEncoder.encode(oldPassword))) {
-			user.setPassword(passwordEncoder.encode(newPassword));
-			this.userRepository.save(user);
-		}
-	}
-	
-	public Boolean authenticate(AppUser user, String password)
-	{
-		return passwordEncoder.matches(password, user.getPassword());
-	}
+public interface UserService {
+    public void createUser(AppUser user) throws UserAlreadyExistsException;
+    public void changePassword(AppUser user, String newPassword);
+    public AppUser getById(Integer id) throws UserNotFoundException;
+    public AppUser getByUsername(String username) throws UserNotFoundException;
+    public Boolean authenticate(AppUser user, String password);
+    public String generateToken(AppUser user);
 }
