@@ -1,7 +1,7 @@
 package com.jtweet.usermanagement.service;
 
-import com.auth0.jwt.JWT;
 import com.jtweet.usermanagement.exception.UserNotFoundException;
+import com.jtweet.usermanagement.helper.TokenGenerator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -9,12 +9,6 @@ import org.springframework.stereotype.Service;
 import com.jtweet.usermanagement.exception.UserAlreadyExistsException;
 import com.jtweet.usermanagement.model.AppUser;
 import com.jtweet.usermanagement.repository.UserRepository;
-
-import java.util.Date;
-
-import static com.auth0.jwt.algorithms.Algorithm.HMAC256;
-import static com.jtweet.usermanagement.security.SecurityConstants.EXPIRATION_TIME;
-import static com.jtweet.usermanagement.security.SecurityConstants.SECRET;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -25,6 +19,8 @@ public class UserServiceImpl implements UserService {
 	@Autowired
 	private PasswordEncoder passwordEncoder;
 
+	@Autowired
+	private TokenGenerator tokenGenerator;
 
 	@Override
 	public AppUser getById(Integer id) throws UserNotFoundException {
@@ -44,13 +40,7 @@ public class UserServiceImpl implements UserService {
 
 	@Override
 	public String generateToken(AppUser user) {
-		return JWT.create()
-				.withSubject(user.getUsername())
-				.withClaim("id", user.getId())
-				.withClaim("email", user.getEmail())
-				.withClaim("name", user.getName())
-				.withExpiresAt(new Date(System.currentTimeMillis() + EXPIRATION_TIME))
-				.sign(HMAC256(SECRET.getBytes()));
+		return tokenGenerator.generate(user);
 	}
 
 	@Override
