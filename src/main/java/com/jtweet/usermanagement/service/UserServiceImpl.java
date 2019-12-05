@@ -1,7 +1,10 @@
 package com.jtweet.usermanagement.service;
 
+import com.auth0.jwt.exceptions.JWTVerificationException;
+import com.auth0.jwt.interfaces.DecodedJWT;
 import com.jtweet.usermanagement.exception.UserNotFoundException;
 import com.jtweet.usermanagement.helper.TokenGenerator;
+import com.jtweet.usermanagement.helper.TokenValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -9,6 +12,8 @@ import org.springframework.stereotype.Service;
 import com.jtweet.usermanagement.exception.UserAlreadyExistsException;
 import com.jtweet.usermanagement.model.AppUser;
 import com.jtweet.usermanagement.repository.UserRepository;
+
+import java.io.UnsupportedEncodingException;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -18,9 +23,6 @@ public class UserServiceImpl implements UserService {
 	
 	@Autowired
 	private PasswordEncoder passwordEncoder;
-
-	@Autowired
-	private TokenGenerator tokenGenerator;
 
 	@Override
 	public AppUser getById(Integer id) throws UserNotFoundException {
@@ -36,11 +38,6 @@ public class UserServiceImpl implements UserService {
 			throw new UserNotFoundException("The user with username "+username+" was not found");
 		}
 		return userRepository.findByUsername(username).get();
-	}
-
-	@Override
-	public String generateToken(AppUser user) {
-		return tokenGenerator.generate(user);
 	}
 
 	@Override

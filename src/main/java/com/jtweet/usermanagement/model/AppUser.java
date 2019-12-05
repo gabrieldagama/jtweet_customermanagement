@@ -9,6 +9,7 @@ import javax.persistence.UniqueConstraint;
 import javax.validation.constraints.NotNull;
 
 import javax.validation.constraints.Email;
+import java.util.HashMap;
 
 @Entity
 @Table(uniqueConstraints={@UniqueConstraint(columnNames = {"email","username"})})
@@ -83,5 +84,12 @@ public class AppUser {
 	public String getRole() {
 		return AppUser.role;
 	}
-	
+
+	public HashMap<String, String> toApiFormat() {
+		HashMap<String, String> userApi = new HashMap<>();
+		userApi.put("name", name);
+		userApi.put("username", username);
+		userApi.put("email", email);
+		return userApi;
+	}
 }

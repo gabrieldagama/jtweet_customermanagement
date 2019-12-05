@@ -1,8 +1,12 @@
 package com.jtweet.usermanagement.controller.v1;
 
+import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 
+import com.auth0.jwt.exceptions.JWTVerificationException;
+import com.auth0.jwt.interfaces.DecodedJWT;
 import com.jtweet.usermanagement.exception.UserNotFoundException;
+import com.jtweet.usermanagement.service.JwtServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -23,17 +27,21 @@ public class UserController {
 	
 	@Autowired
 	private UserServiceImpl userService;
+
+	@Autowired
+	private JwtServiceImpl jwtService;
 	
 	@GetMapping("/{id}")
 	public ResponseEntity getUser(@PathVariable Integer id) {
 		try {
-			return ResponseEntity.status(HttpStatus.OK).body(userService.getById(id));
+			AppUser user = userService.getById(id);
+			return ResponseEntity.status(HttpStatus.OK).body(user.toApiFormat());
 		} catch (UserNotFoundException e) {
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found.");
 		}
 	}
 	
-	@PostMapping("/create")
+	@PostMapping("/")
 	public ResponseEntity createUser(@RequestBody AppUser user) {
 		try {
 			this.userService.createUser(user);
@@ -48,11 +56,24 @@ public class UserController {
 		try {
 			AppUser user = this.userService.getByUsername(body.get("username"));
 			if (this.userService.authenticate(user, body.get("password"))) {
-				return ResponseEntity.status(HttpStatus.OK).body(userService.generateToken(user));
+				return ResponseEntity.status(HttpStatus.OK).body(jwtService.generateToken(user));
 			}
 		} catch (UserNotFoundException e) {
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found.");
 		}
-		return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Login invalid.");
+		return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid login.");
+	}
+
+	@PostMapping("/validateJwt")
+	public ResponseEntity validate(@RequestBody String jwt) {
+		try {
+			DecodedJWT decodedJWT = jwtService.validateToken(jwt);
+			AppUser user = userService.getByUsername(decodedJWT.getSubject());
+			return ResponseEntity.status(HttpStatus.OK).body(user);
+		} catch (JWTVerificationException | UnsupportedEncodingException exception) {
+			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid Token.");
+		} catch (UserNotFoundException exception) {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found.");
+		}
 	}
 }

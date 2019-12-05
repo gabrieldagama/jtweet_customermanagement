@@ -10,5 +10,4 @@ public interface UserService {
     public AppUser getById(Integer id) throws UserNotFoundException;
     public AppUser getByUsername(String username) throws UserNotFoundException;
     public Boolean authenticate(AppUser user, String password);
-    public String generateToken(AppUser user);
 }

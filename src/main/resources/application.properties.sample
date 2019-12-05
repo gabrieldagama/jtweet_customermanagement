@@ -6,3 +6,5 @@ spring.datasource.password=root
 server.port=8081
 spring.application.name=UserManagement
 jtweet.secret=jTweetSecret
+jtweet.jwt.secret=jTweetSecret
+jtweet.jwt.expiration=864000000

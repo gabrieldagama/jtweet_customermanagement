@@ -1,20 +1,14 @@
 package com.jtweet.usermanagement.service;
 
-import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.*;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-
 import com.jtweet.usermanagement.exception.UserNotFoundException;
-import com.jtweet.usermanagement.helper.TokenGenerator;
+import java.util.Optional;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
 import com.jtweet.usermanagement.exception.UserAlreadyExistsException;
@@ -39,20 +33,9 @@ public class UserServiceTest {
     @Mock
     private PasswordEncoder passwordEncoder;
 
-    @Mock
-    private TokenGenerator tokenGenerator;
-
     @Before
     public void setUp() {
     	MockitoAnnotations.initMocks(this);
-    }
-
-    @Test
-    public void testGenerateToken() {
-        AppUser user = buildUserObject();
-        String token = "generatedToken";
-        when(tokenGenerator.generate(user)).thenReturn(token);
-        Assert.assertEquals(token, userService.generateToken(user));
     }
 
     @Test
