@@ -41,7 +41,7 @@ public class UserController {
 		}
 	}
 	
-	@PostMapping("/")
+	@PostMapping
 	public ResponseEntity createUser(@RequestBody AppUser user) {
 		try {
 			this.userService.createUser(user);
@@ -64,7 +64,7 @@ public class UserController {
 		return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid login.");
 	}
 
-	@PostMapping("/validateJwt")
+	@PostMapping("/jwt")
 	public ResponseEntity validate(@RequestBody String jwt) {
 		try {
 			DecodedJWT decodedJWT = jwtService.validateToken(jwt);
